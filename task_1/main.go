@@ -1,6 +1,10 @@
-package task1
+package main
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+	"strconv"
+)
 
 //只出现一次的数字
 /*
@@ -28,8 +32,12 @@ func SingleNumber(nums []int) {
 题目：判断一个整数是否是回文数
 */
 func IsPalindrome(x int) bool {
-
-	return false
+	str := strconv.Itoa(x)
+	var newstr string
+	for i := len(str) - 1; i >= 0; i-- {
+		newstr = fmt.Sprintf("%s%c", newstr, str[i])
+	}
+	return str == newstr
 }
 
 //有效括号
@@ -40,8 +48,21 @@ func IsPalindrome(x int) bool {
 判断字符串是否有效
 */
 func IsValidBracket(s string) bool {
-
-	return false
+	stack := []rune{}
+	for _, c := range s {
+		if c == '(' || c == '{' || c == '[' {
+			stack = append(stack, c)
+		} else {
+			if len(stack) == 0 {
+				return false
+			}
+			top := stack[len(stack)-1]
+			if (c == ')' && top == '(') || (c == '}' && top == '{') || (c == ']' && top == '[') {
+				stack = stack[:len(stack)-1]
+			}
+		}
+	}
+	return len(stack) == 0
 }
 
 //最长公共前缀
@@ -52,7 +73,19 @@ func IsValidBracket(s string) bool {
 */
 
 func LongestCommonPrefix(strs []string) string {
-
+	sort.Slice(strs, func(i, j int) bool {
+		return len(strs[i]) < len(strs[j])
+	})
+	if len(strs) == 0 {
+		return ""
+	}
+	for i, c := range strs[0] {
+		for _, e := range strs {
+			if rune(e[i]) != c {
+				return strs[0][:i]
+			}
+		}
+	}
 	return ""
 }
 
@@ -65,8 +98,22 @@ func LongestCommonPrefix(strs []string) string {
 题目：给定一个由整数组成的非空数组所表示的非负整数，在该数的基础上加一
 */
 
-func AddOne(nums []int) {
-
+func AddOne(nums []int) []int {
+	for i := len(nums) - 1; i >= 0; i-- {
+		if nums[i] < 9 {
+			nums[i]++
+			break
+		}
+		if i == len(nums)-1 {
+			nums[i] = 0
+		} else {
+			nums[i] = 1
+		}
+		if i == 0 {
+			nums = append([]int{1}, nums...)
+		}
+	}
+	return nums
 }
 
 //删除有序数组中的重复项
@@ -81,8 +128,16 @@ func AddOne(nums []int) {
 */
 
 func RemoveDuplicates(nums []int) int {
-
-	return 0
+	repeat := 0
+	for i := 1; i < len(nums); i++ {
+		if nums[i] == nums[repeat] {
+			nums = append(nums[:i], nums[i+1:]...)
+			i--
+		} else {
+			repeat = i
+		}
+	}
+	return len(nums)
 }
 
 //合并区间
@@ -97,8 +152,23 @@ func RemoveDuplicates(nums []int) int {
 */
 
 func Merge(intervals [][]int) [][]int {
-
-	return nil
+	results := [][]int{}
+	sort.Slice(intervals, func(i, j int) bool {
+		return intervals[i][0] < intervals[j][0]
+	})
+	temp := intervals[0]
+	if len(intervals) > 1 {
+		for i := 1; i < len(intervals); i++ {
+			if intervals[i][0] > temp[1] {
+				results = append(results, temp)
+				temp = intervals[i]
+			} else {
+				temp[1] = intervals[i][1]
+			}
+		}
+		results = append(results, temp)
+	}
+	return results
 }
 
 //两数之和
@@ -109,7 +179,15 @@ func Merge(intervals [][]int) [][]int {
  target，请你在该数组中找出和为目标值的那两个整数
 */
 
-func TowSum(nums []int, target int) []int {
+func TowSum(nums []int, target int) [2]int {
+	result := [2]int{0}
+	for i := 0; i < len(nums)-1; i++ {
+		for j := i + 1; i < len(nums)-1; i++ {
+			if nums[i]+nums[j] == target {
+				return [2]int{nums[i], nums[j]}
+			}
+		}
+	}
 
-	return nil
+	return result
 }
