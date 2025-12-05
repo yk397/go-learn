@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"task3/model"
 
@@ -9,11 +10,11 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-var dst = "root:123@Tcp(127.0.0.1:3307)/blog?charset=utf8mb4&parseTime=True&loc=Local"
+var dst = "root:123456@tcp(127.0.0.1:3306)/blog?charset=utf8mb4&parseTime=True&loc=Local"
 var db *gorm.DB
 
 func init() {
-	db, err := gorm.Open(mysql.Open(dst), &gorm.Config{
+	db1, err := gorm.Open(mysql.Open(dst), &gorm.Config{
 		Logger: logger.New(
 			log.Default(),
 			logger.Config{
@@ -23,14 +24,19 @@ func init() {
 		),
 	})
 	if err != nil {
-		panic("数据库连接失败")
+		panic(err.Error())
 	}
-	dbConnections, err := db.DB()
+	db = db1
+	dbConnections, err := db1.DB()
 	if err != nil {
-		panic("数据库连接失败")
+		panic(err.Error())
 	}
 	dbConnections.SetMaxOpenConns(100)
 	dbConnections.SetMaxIdleConns(10)
+}
+
+func Migration() {
+	db.AutoMigrate(&model.User{}, &model.Post{}, &model.Comment{}, &model.Tag{})
 }
 
 type IUserRepository interface {
@@ -72,7 +78,10 @@ func (UserRepository) GetPosts(id uint) []model.Post {
 	return posts
 }
 func (UserRepository) AddOne(user *model.User) uint {
-	db.Create(user)
+	result := db.Create(user)
+	if result.Error != nil {
+		fmt.Printf("insert user eroor :%s", result.Error.Error())
+	}
 	return user.ID
 }
 
