@@ -1,6 +1,7 @@
 package post
 
 import (
+	"strconv"
 	"task3/api"
 	"task3/model"
 	"task3/service"
@@ -57,5 +58,38 @@ func AddPost(ctx *gin.Context) {
 		Message: "添加成功",
 		Data:    post.ID,
 	})
+
+}
+
+func PushPost(ctx *gin.Context) {
+	userName := api.GetUserName(ctx)
+	if userName == "" {
+		ctx.JSON(403, api.Result{
+			Success: false,
+			Message: "用户未登录",
+		})
+	}
+
+	postStr := ctx.Param("postId")
+
+	postId, err := strconv.Atoi(postStr)
+	if err != nil {
+		ctx.JSON(400, api.Result{
+			Success: false,
+			Message: "参数错误",
+		})
+	}
+	result := postService.UpdateStatus(POSTED, uint(postId))
+	if !result {
+		ctx.JSON(500, api.Result{
+			Success: false,
+			Message: "查询失败",
+		})
+	} else {
+		ctx.JSON(200, api.Result{
+			Success: true,
+			Data:    result,
+		})
+	}
 
 }

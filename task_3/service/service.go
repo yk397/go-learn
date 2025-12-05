@@ -53,6 +53,7 @@ type IPostRepository interface {
 	SearchByTags([]model.Tag) []model.Post
 	UpdateStatus(uint8, uint) bool
 	AddComment(comment model.Comment, postid uint) bool
+	GetById(uint) model.Post
 }
 
 type UserRepository struct{}
@@ -122,4 +123,13 @@ func (PostRepository) AddComment(comment model.Comment, postid uint) bool {
 	comment.PostId = postid
 	result := db.Create(&comment)
 	return result.Error != nil
+}
+
+func (PostRepository) GetById(postId uint) model.Post {
+	var post model.Post
+	result := db.Preload("Comments").Preload("Tags").Preload("User").First(&post, postId)
+	if result.Error != nil {
+		log.Fatal("查询Post失败,参数=", postId)
+	}
+	return post
 }
