@@ -12,28 +12,28 @@ type Shape interface {
 }
 
 type Rectangle struct {
-	length float64
-	width  float64
+	Length float64
+	Width  float64
 }
 
 type Circle struct {
-	radius float64
+	Radius float64
 }
 
 func (rec *Rectangle) Area() float64 {
-	return rec.length * rec.width
+	return rec.Length * rec.Width
 }
 
 func (rec *Rectangle) Perimeter() float64 {
-	return (rec.length + rec.width) * 2
+	return (rec.Length + rec.Width) * 2
 }
 
 func (c *Circle) Area() float64 {
-	return math.Pi * math.Pow(c.radius, 2)
+	return math.Pi * math.Pow(c.Radius, 2)
 }
 
 func (c *Circle) Perimeter() float64 {
-	return 2 * math.Pi * c.radius
+	return 2 * math.Pi * c.Radius
 }
 
 // 题目二
